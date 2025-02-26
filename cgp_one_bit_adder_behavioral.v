@@ -1,5 +1,5 @@
 // 1-bit adder using behavior modeling
-module adder(A,B,Cin,Cout,S);
+module one_bit_adder(A,B,Cin,Cout,S);
   input A, B, Cin;
   output Cout, S;
   
