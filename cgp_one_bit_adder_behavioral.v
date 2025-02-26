@@ -1,6 +1,6 @@
 // 1-bit adder using behavior modeling
 module adder(A,B,Cin,Cout,S);
-  input A,B,Cin;
+  input A, B, Cin;
   output Cout, S;
   
   wire x1,t1,t2,t3,t4;
