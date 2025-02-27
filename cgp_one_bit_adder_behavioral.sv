@@ -1,17 +1,15 @@
-// 1-bit adder using behavior modeling
-module one_bit_adder(A,B,Cin,Cout,S);
+//One-bit full adder behavior model
+module one_bit_adder_behavior(Sum, Cout, A, B, Cin);
+  output Sum,  Cout;
   input A, B, Cin;
-  output Cout, S;
   
-  wire x1,t1,t2,t3,t4;
+  wire t1, t2, t3;
   
-  assign x1 = A^B;
-  assign S = x1^Cin;
-  
-  assign t1 = A&B;
-  assign t2 = A&Cin;
-  assign t3 = B&Cin;
-  assign t4 = t1|t2;
-  assign Cout = t4|t3;
+  assign Sum = A ^ B ^ Cin;
+
+  assign t1 = A & Cin;
+  assign t2 = A & B;
+  assign t3 = A & Cin;
+  assign Cout = t1 | t2 | t3;
   
 endmodule
