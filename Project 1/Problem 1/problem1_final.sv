@@ -1,13 +1,6 @@
-module one_bit_full_adder(A, B, Cin, S, Cout);
-  input A, B, Cin;
-  output S, Cout;
+// Problem 1 Parts a through d. Part e (the testbench) can be found in the Testbenches folder on the main branch
+// 4-Bit Ripple Carry Adder and Subtractor
 
-  assign S = A ^ B ^ Cin;
-  assign Cout = (A & B) | (A ^ B & Cin);
-  // could also write: assign{S, Cout} = A + B + Cin;
-endmodule
-
-// 1-bit FA from previous file
 module one_bit_full_adder(A, B, Cin, S, Cout);
   input A, B, Cin;
   output S, Cout;
