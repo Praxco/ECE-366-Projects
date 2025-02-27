@@ -2,17 +2,6 @@
 // Written by Cole Garrett S.
 // Personal Note: The '?' operator works essentially as a conditional if statement that can be argued in the following parameters;assign name = condition ? expression1 : expression2
 // If condition is true (1), the variable being assigned will be set to expression1. If false, expression2 is set
-
-// 1-bit FA from previous file
-module one_bit_full_adder(A, B, Cin, S, Cout);
-  input A, B, Cin;
-  output S, Cout;
-
-  assign S = A ^ B ^ Cin;
-  assign Cout = (A & B) | (A ^ B & Cin);
-endmodule
-
-
 module four_bit_RCA_RCS (A, B, Cin, mode, S, Cout);
   input [3:0] A, B;
   input Cin, mode;
