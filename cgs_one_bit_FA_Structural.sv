@@ -9,8 +9,8 @@ module full_adder(input A, B, Cin, output S, Cout);
 
   // AND gates for carry 
   and U3 (t2, A, B); // t2 = A & B
-  and U4 (t3, t2, Cin); // t3 = A & B & Cin
+  and U4 (t3, t1, Cin); // t3 = (A ^ B) & Cin
 
   // OR gates for Cout
-  or U5 (Cout, t1, t3); // Cout = (A & B) | (A & Cin) | (B & Cin)
+  or U5 (Cout, t2, t3); // Cout = (A & B) | ((A ^ B) & Cin)
 endmodule
