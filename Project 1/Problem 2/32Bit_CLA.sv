@@ -1,3 +1,4 @@
+// Problem 2 32 Bit CLA; This is mostly made using behavioral models on the smaller modules, and then putting the CLA together structurally
 module one_bit_full_adder(A, B, Cin, S, Cout);
   input A, B, Cin;
   output S, Cout;
@@ -50,11 +51,16 @@ module carry_logic (P, G, Cin, Cout);
   
 endmodule
 
-module CLA_4Bit(A, B, G, P, Cin, S, Cout);
+module CLA_module_4Bit(A, B, G, P, Cin, S, Cout);
   input [3:0] A, B, G, P;
   input Cin;
   output [3:0] S;
   output Cout;
+
+  four_bit_RCA (.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));
+
+  g_and_p(.A(A), .B(B), .P(P), .G(G));
+  carry_logic(.P(P), .G(G), .Cin(Cin), .Cout(Cout));
   
 endmodule
 
