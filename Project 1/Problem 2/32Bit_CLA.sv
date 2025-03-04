@@ -47,7 +47,7 @@ module carry_logic (P, G, Cin, Cout);
   assign Ctemp[2] = G[2] | (P[2] & Ctemp[1]);
   assign Ctemp[3] = G[3] | (P[3] & Ctemp[2]);
   
-  assign C = Ctemp;
+  assign Cout = Ctemp;
   
 endmodule
 
