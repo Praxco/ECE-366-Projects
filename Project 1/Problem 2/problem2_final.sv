@@ -1,3 +1,5 @@
+// Final submission for problem 2, 32 bit CLA
+
 module gp_4bit(A, B, G, P);
   input [3:0] A, B;
   output [3:0] G, P;
