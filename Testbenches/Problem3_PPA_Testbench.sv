@@ -7,9 +7,9 @@ module TestBench();
   Main DUT0(Sum, A_Value, B_Value, cin, p_0);
 
     initial begin
-      $display("Sum	A    B	Cin p_0");
-      $display("------------------------");
-      $monitor("%h, %h, %h, %b, %b", Sum, A_Value, B_Value, cin, p_0);
+      $display("  Sum\tA\tB\tCin\tp_0");
+      $display("------------------------------------");
+      $monitor("%h,\t %h,\t %h,\t %b,\t %b", Sum, A_Value, B_Value, cin, p_0);
     {A_Value, B_Value} = 16'h0000; {cin, p_0} = 0;
     #5 A_Value = 16'h0010; B_Value = 16'h0020;
     #5 A_Value = 16'h0110; B_Value = 16'h0110; cin = 1;
