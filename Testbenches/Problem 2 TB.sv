@@ -15,7 +15,7 @@ module CLA_32Bit_tb();
     $display("----------------------------------------");
     #5;
     $monitor("%d, %d, %b, %d, %b", A, B, Cin, S, Cout);
-    A = 32'd0; B = 32'd0; Cin = 0;
+    A = 32'd0; B = 32'd0; Cin = 0; // 0+0=0
     #5 A = 32'd45; B = 32'd45; // 45+45=90
     #5 A = 32'd10; B = 32'd50; // 10+50=60
     #5 A = 32'd68; B = 32'd87; // 68+87=155
@@ -32,3 +32,4 @@ module CLA_32Bit_tb();
     #5 $finish;
   end
 endmodule
+
