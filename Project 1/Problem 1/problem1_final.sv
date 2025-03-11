@@ -85,4 +85,10 @@ module TestBench_4Bit_FA;
         $finish;
     end
 
+  initial 
+  begin 
+  $dumpfile("dump.vcd"); 
+  $dumpvars(1); 
+  end;
+  
 endmodule
