@@ -73,7 +73,7 @@ module CLA_32Bit_tb();
   initial begin
     $display("         A           B  Cin       S Cout");
     $display("----------------------------------------");
-    #5;
+    
     $monitor("%d, %d, %b, %d, %b", A, B, Cin, S, Cout);
     A = 32'd0; B = 32'd0; Cin = 0;
     #5 A = 32'd45; B = 32'd45; // 45+45=90
@@ -91,4 +91,11 @@ module CLA_32Bit_tb();
     
     #5 $finish;
   end
+  
+  initial 
+  begin 
+  $dumpfile("dump.vcd"); 
+  $dumpvars(1); 
+  end;
+  
 endmodule
