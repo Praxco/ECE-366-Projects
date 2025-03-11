@@ -128,4 +128,12 @@ module TestBench();
    #50 $finish;
 
   end
+  
+initial 
+  begin 
+  $dumpfile("dump.vcd"); 
+  $dumpvars(1); 
+  end;
+  
 endmodule
+
