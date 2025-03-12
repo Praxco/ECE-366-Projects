@@ -33,11 +33,12 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   output [15:0] S;
   output Cout;
   
-  wire [15:0] G, Gik, Gkj, Gij1, Gij2, Gij3, Gij4, P, Pik, Pkj, Pij1, Pij2, Pij3;
+  wire [15:0] G, Gij1, Gij2, Gij3, P, Pij1, Pij2, Pij3, GC;
   // G and P are precompute values
   // Gik and Pik are the current block P and Gs
   // Gkj and Pkj are the previous/connected/carried P and G from last block
   // Gij(x) and Pij(x) are the outputs of level x, to be sent to next level
+  // GC is the generated carry for the corresponding block/bit (indicated by instance name)
   genvar i;
   generate
     for (i = 0; i < 16; i = i + 1) begin : precomp
@@ -46,7 +47,7 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   endgenerate
   
   // Level 1
-  grayCell G1_0(.Gik(G[0]), .Gkj(Cin), .Pik(P[0]), .Gout(Gij1[0]));
+  grayCell G1_0(.Gik(G[0]), .Gkj(Cin), .Pik(P[0]), .Gout(GC[0]));
   blackCell PG2_1(.Gik(G[2]), .Gkj(G[1]), .Pik(P[2]), .Pkj(P[1]), .Pout(Pij1[1]), .Gout(Gij1[1]));
   blackCell PG3_2(.Gik(G[3]), .Gkj(G[2]), .Pik(P[3]), .Pkj(P[2]), .Pout(Pij1[2]), .Gout(Gij1[2]));
   blackCell PG4_3(.Gik(G[4]), .Gkj(G[3]), .Pik(P[4]), .Pkj(P[3]), .Pout(Pij1[3]), .Gout(Gij1[3]));
@@ -64,8 +65,8 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   
   
   // Level 2
-  grayCell G2_0(.Gik(Gij1[1]), .Gkj(Cin), .Pik(Pij1[1]), .Gout(Gij2[1]));
-  grayCell G3_0(.Gik(Gij1[2]), .Gkj(Gij1[0]), .Pik(Pij1[2]), .Gout(Gij2[2]));
+  grayCell G2_0(.Gik(Gij1[1]), .Gkj(Cin), .Pik(Pij1[1]), .Gout(GC[1]));
+  grayCell G3_0(.Gik(Gij1[2]), .Gkj(GC[0]), .Pik(Pij1[2]), .Gout(GC[2]));
   blackCell PG4_1(.Gik(Gij1[3]), .Gkj(Gij1[1]), .Pik(Pij1[3]), .Pkj(Pij1[1]), .Pout(Pij2[3]), .Gout(Gij2[3]));
   blackCell PG5_2(.Gik(Gij1[4]), .Gkj(Gij1[2]), .Pik(Pij1[4]), .Pkj(Pij1[2]), .Pout(Pij2[4]), .Gout(Gij2[4]));
   blackCell PG6_3(.Gik(Gij1[5]), .Gkj(Gij1[3]), .Pik(Pij1[5]), .Pkj(Pij1[3]), .Pout(Pij2[5]), .Gout(Gij2[5]));
@@ -82,10 +83,10 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   
   // Level 3
   
-  grayCell G4_0(.Gik(Gij2[3]), .Gkj(Cin), .Pik(Pij2[3]), .Gout(Gij3[3]));
-  grayCell G5_0(.Gik(Gij2[4]), .Gkj(Gij1[0]), .Pik(Pij2[4]), .Gout(Gij3[4]));
-  grayCell G6_0(.Gik(Gij2[5]), .Gkj(Gij2[1]), .Pik(Pij2[5]), .Gout(Gij3[5]));
-  grayCell G7_0(.Gik(Gij2[6]), .Gkj(Gij2[2]), .Pik(Pij2[6]), .Gout(Gij3[6]));
+  grayCell G4_0(.Gik(Gij2[3]), .Gkj(Cin), .Pik(Pij2[3]), .Gout(GC[3]));
+  grayCell G5_0(.Gik(Gij2[4]), .Gkj(GC[0]), .Pik(Pij2[4]), .Gout(GC[4]));
+  grayCell G6_0(.Gik(Gij2[5]), .Gkj(GC[1]), .Pik(Pij2[5]), .Gout(GC[5]));
+  grayCell G7_0(.Gik(Gij2[6]), .Gkj(GC[2]), .Pik(Pij2[6]), .Gout(GC[6]));
   blackCell PG8_1(.Gik(Gij2[7]), .Gkj(Gij2[3]), .Pik(Pij2[7]), .Pkj(Pij2[3]), .Pout(Pij3[7]), .Gout(Gij3[7]));
   blackCell PG9_2(.Gik(Gij2[8]), .Gkj(Gij2[4]), .Pik(Pij2[8]), .Pkj(Pij2[4]), .Pout(Pij3[8]), .Gout(Gij3[8]));
   blackCell PG10_3(.Gik(Gij2[9]), .Gkj(Gij2[5]), .Pik(Pij2[9]), .Pkj(Pij2[5]), .Pout(Pij3[9]), .Gout(Gij3[9]));
@@ -97,35 +98,35 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   
   // Level 4
   
-  grayCell G8_0(.Gik(Gij3[7]), .Gkj(Cin), .Pik(Pij3[7]), .Gout(Gij4[7]));
-  grayCell G9_0(.Gik(Gij3[8]), .Gkj(Gij1[0]), .Pik(Pij3[8]), .Gout(Gij4[8]));
-  grayCell G10_0(.Gik(Gij3[9]), .Gkj(Gij2[1]), .Pik(Pij3[9]), .Gout(Gij4[9]));
-  grayCell G11_0(.Gik(Gij3[10]), .Gkj(Gij2[2]), .Pik(Pij3[10]), .Gout(Gij4[10]));
-  grayCell G12_0(.Gik(Gij3[11]), .Gkj(Gij3[3]), .Pik(Pij3[11]), .Gout(Gij4[11]));
-  grayCell G13_0(.Gik(Gij3[12]), .Gkj(Gij3[4]), .Pik(Pij3[12]), .Gout(Gij4[12]));
-  grayCell G14_0(.Gik(Gij3[13]), .Gkj(Gij3[5]), .Pik(Pij3[13]), .Gout(Gij4[13]));
-  grayCell G15_0(.Gik(Gij3[14]), .Gkj(Gij3[6]), .Pik(Pij3[14]), .Gout(Gij4[14]));
+  grayCell G8_0(.Gik(Gij3[7]), .Gkj(Cin), .Pik(Pij3[7]), .Gout(GC[7]));
+  grayCell G9_0(.Gik(Gij3[8]), .Gkj(GC[0]), .Pik(Pij3[8]), .Gout(GC[8]));
+  grayCell G10_0(.Gik(Gij3[9]), .Gkj(GC[1]), .Pik(Pij3[9]), .Gout(GC[9]));
+  grayCell G11_0(.Gik(Gij3[10]), .Gkj(GC[2]), .Pik(Pij3[10]), .Gout(GC[10]));
+  grayCell G12_0(.Gik(Gij3[11]), .Gkj(GC[3]), .Pik(Pij3[11]), .Gout(GC[11]));
+  grayCell G13_0(.Gik(Gij3[12]), .Gkj(GC[4]), .Pik(Pij3[12]), .Gout(GC[12]));
+  grayCell G14_0(.Gik(Gij3[13]), .Gkj(GC[5]), .Pik(Pij3[13]), .Gout(GC[13]));
+  grayCell G15_0(.Gik(Gij3[14]), .Gkj(GC[6]), .Pik(Pij3[14]), .Gout(GC[14]));
   
   // Sum/Post Processing Stage
   
   grayCell cout(.Gik(Gij3[14]), .Gkj(Cin), .Pik(Pij3[14]), .Gout(Cout));
   
   postcomputation S0(.Gi0(Cin), .P(P[0]), .S(S[0]));
-  postcomputation S1(.Gi0(Gij1[0]), .P(P[1]), .S(S[1]));
-  postcomputation S2(.Gi0(Gij2[1]), .P(P[2]), .S(S[2]));
-  postcomputation S3(.Gi0(Gij2[2]), .P(P[3]), .S(S[3]));
-  postcomputation S4(.Gi0(Gij3[3]), .P(P[4]), .S(S[4]));
-  postcomputation S5(.Gi0(Gij3[4]), .P(P[5]), .S(S[5]));
-  postcomputation S6(.Gi0(Gij3[5]), .P(P[6]), .S(S[6]));
-  postcomputation S7(.Gi0(Gij3[6]), .P(P[7]), .S(S[7]));
-  postcomputation S8(.Gi0(Gij4[7]), .P(P[8]), .S(S[8]));
-  postcomputation S9(.Gi0(Gij4[8]), .P(P[9]), .S(S[9]));
-  postcomputation S10(.Gi0(Gij4[9]), .P(P[10]), .S(S[10]));
-  postcomputation S11(.Gi0(Gij4[10]), .P(P[11]), .S(S[11]));
-  postcomputation S12(.Gi0(Gij4[11]), .P(P[12]), .S(S[12]));
-  postcomputation S13(.Gi0(Gij4[12]), .P(P[13]), .S(S[13]));
-  postcomputation S14(.Gi0(Gij4[13]), .P(P[14]), .S(S[14]));
-  postcomputation S15(.Gi0(Gij4[14]), .P(P[15]), .S(S[15]));
+  postcomputation S1(.Gi0(GC[0]), .P(P[1]), .S(S[1]));
+  postcomputation S2(.Gi0(GC[1]), .P(P[2]), .S(S[2]));
+  postcomputation S3(.Gi0(GC[2]), .P(P[3]), .S(S[3]));
+  postcomputation S4(.Gi0(GC[3]), .P(P[4]), .S(S[4]));
+  postcomputation S5(.Gi0(GC[4]), .P(P[5]), .S(S[5]));
+  postcomputation S6(.Gi0(GC[5]), .P(P[6]), .S(S[6]));
+  postcomputation S7(.Gi0(GC[6]), .P(P[7]), .S(S[7]));
+  postcomputation S8(.Gi0(GC[7]), .P(P[8]), .S(S[8]));
+  postcomputation S9(.Gi0(GC[8]), .P(P[9]), .S(S[9]));
+  postcomputation S10(.Gi0(GC[9]), .P(P[10]), .S(S[10]));
+  postcomputation S11(.Gi0(GC[10]), .P(P[11]), .S(S[11]));
+  postcomputation S12(.Gi0(GC[11]), .P(P[12]), .S(S[12]));
+  postcomputation S13(.Gi0(GC[12]), .P(P[13]), .S(S[13]));
+  postcomputation S14(.Gi0(GC[13]), .P(P[14]), .S(S[14]));
+  postcomputation S15(.Gi0(GC[14]), .P(P[15]), .S(S[15]));
   
   
 endmodule
