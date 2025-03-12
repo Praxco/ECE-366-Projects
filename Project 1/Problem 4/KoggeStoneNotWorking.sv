@@ -20,6 +20,13 @@ module grayCell(Gik, Gkj, Pik, Gout);
   assign Gout = Gik | (Pik & Gkj);
 endmodule
 
+module postcomputation(Gi0, P, S);
+  input Gi0, P;
+  output S;
+  
+  assign S = Gi0 ^ P;
+endmodule
+
 module KoggeStone16bit(A, B, Cin, S, Cout);
   input [15:0] A, B;
   input Cin;
@@ -51,7 +58,7 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   blackCell PG10_9(.Gik(G[10]), .Gkj(G[9]), .Pik(P[10]), .Pkj(P[9]), .Pout(Pij1[9]), .Gout(Gij1[9]));
   blackCell PG11_10(.Gik(G[11]), .Gkj(G[10]), .Pik(P[11]), .Pkj(P[10]), .Pout(Pij1[10]), .Gout(Gij1[10]));
   blackCell PG12_11(.Gik(G[12]), .Gkj(G[11]), .Pik(P[12]), .Pkj(P[11]), .Pout(Pij1[11]), .Gout(Gij1[11]));
-  blackCell PG13_12(.Gik(G[13]), .Gkj(G[12]), .Pik(P[13]), .Pkj(P[12]), .Pout(Pij1[12]), .Gout(Gij1[13]));
+  blackCell PG13_12(.Gik(G[13]), .Gkj(G[12]), .Pik(P[13]), .Pkj(P[12]), .Pout(Pij1[12]), .Gout(Gij1[12]));
   blackCell PG14_13(.Gik(G[14]), .Gkj(G[13]), .Pik(P[14]), .Pkj(P[13]), .Pout(Pij1[13]), .Gout(Gij1[13]));
   blackCell PG15_14(.Gik(G[15]), .Gkj(G[14]), .Pik(P[15]), .Pkj(P[14]), .Pout(Pij1[14]), .Gout(Gij1[14]));
   
@@ -103,27 +110,25 @@ module KoggeStone16bit(A, B, Cin, S, Cout);
   
   grayCell cout(.Gik(Gij3[14]), .Gkj(Cin), .Pik(Pij3[14]), .Gout(Cout));
   
-  xor(S[0], Cin, P[0]);
-  xor(S[1], Gij1[0], P[1]);
-  xor(S[2], Gij2[1], P[2]);
-  xor(S[3], Gij2[2], P[3]);
-  xor(S[4], Gij3[3], P[4]);
-  xor(S[5], Gij3[4], P[5]);
-  xor(S[6], Gij3[5], P[6]);
-  xor(S[7], Gij3[6], P[7]);
-  xor(S[8], Gij4[7], P[8]);
-  xor(S[9], Gij4[8], P[9]);
-  xor(S[10], Gij4[9], P[10]);
-  xor(S[11], Gij4[10], P[11]);
-  xor(S[12], Gij4[11], P[12]);
-  xor(S[13], Gij4[12], P[13]);
-  xor(S[14], Gij4[13], P[14]);
-  xor(S[15], Gij4[14], P[15]);
-  
+  postcomputation S0(.Gi0(Cin), .P(P[0]), .S(S[0]));
+  postcomputation S1(.Gi0(Gij1[0]), .P(P[1]), .S(S[1]));
+  postcomputation S2(.Gi0(Gij2[1]), .P(P[2]), .S(S[2]));
+  postcomputation S3(.Gi0(Gij2[2]), .P(P[3]), .S(S[3]));
+  postcomputation S4(.Gi0(Gij3[3]), .P(P[4]), .S(S[4]));
+  postcomputation S5(.Gi0(Gij3[4]), .P(P[5]), .S(S[5]));
+  postcomputation S6(.Gi0(Gij3[5]), .P(P[6]), .S(S[6]));
+  postcomputation S7(.Gi0(Gij3[6]), .P(P[7]), .S(S[7]));
+  postcomputation S8(.Gi0(Gij4[7]), .P(P[8]), .S(S[8]));
+  postcomputation S9(.Gi0(Gij4[8]), .P(P[9]), .S(S[9]));
+  postcomputation S10(.Gi0(Gij4[9]), .P(P[10]), .S(S[10]));
+  postcomputation S11(.Gi0(Gij4[10]), .P(P[11]), .S(S[11]));
+  postcomputation S12(.Gi0(Gij4[11]), .P(P[12]), .S(S[12]));
+  postcomputation S13(.Gi0(Gij4[12]), .P(P[13]), .S(S[13]));
+  postcomputation S14(.Gi0(Gij4[13]), .P(P[14]), .S(S[14]));
+  postcomputation S15(.Gi0(Gij4[14]), .P(P[15]), .S(S[15]));
   
   
 endmodule
-  
   
   
 
