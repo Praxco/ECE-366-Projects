@@ -1,50 +1,45 @@
-module KoggeStone_16bitAdder (A, B, Cin, S, Cout);
-  input [15:0] A, B;
-  input Cin;
-  output [15:0] S;
-  output Cout;
+module pre-computation(A, B, P, G);
+  input A, B;
+  output P, G;
+  assign P = A ^ B;
+  assign G = A & B;
+endmodule
+
+module post-computation (P, G, S);
+  input P, G;
+  output S;
+  assign S = G ^ P; 
+endmodule
+
+module blackCell( Gik, Gkj, Pik, Pkj, Pout, Gout);
+  input Gik, Gkj, Pik, Pkj;
+  output Pout, Gout;
   
-  wire [15:0] P, G;
-  wire [15:0] C;
+  assign Pout = Pik ^ Pkj;
+  assign Gout = Gik | (Pik & Gkj);
+endmodule
+
+module grayCell(Gik, Pik, Gkj, Gout);
+  input Gik, Pik, Gkj;
+  output Gout;
+  
+  assign Gout = Gik | (Pik & Gkj);
+endmodule
+
+module KoggeStone16bit(A, B, Cin, S, Cout);
+  wire [15:0] G, Gik, Gkj, Gij, P, Pik, Pkj, Pij;
   
   genvar i;
   generate
-    for(i=0; i < 16; i = i + 1) begin: propogate_generate
-      assign P[i] = A[i] ^ B[i];
-      assign G[i] = A[i] & B[i];
+    for (i = 0; i < 16; i = i + 1) begin : precomp
+      pre-computation pc(.A(A[i]), .B(B[i]), .P(P[i]), .G(G[i]));
     end
   endgenerate
-  
-  wire [15:0] P_stage [0:15];
-  wire [15:0] G_stage [0:15];
-  
-  assign P_stage[0] = P;
-  assign G_stage[0] = G;
-  
-  generate
-    for (i = 1; i < 16; i = i + 1) begin : prefixes
-      assign G_stage[i] = (G_stage[i-1]) & P_stage[i-1];
-      assign P_stage[i] = P_stage[i-1] & G_stage[i-1];
-    end
-  endgenerate
-  
-  assign C[0] = Cin;
-  
-  generate
-    for (i = 1; i < 16; i = i + 1) begin: carries
-      assign C[i] = G_stage[i-1][i-1] | (P_stage[i-1][i-1] & C[i-1]);
-    end
-  endgenerate
-  
-  assign Cout = C[15];
-  
-  generate
-    for (i = 0; i < 16; i = i + 1) begin: sum
-      assign S[i] = A[i] ^ B[i] ^ C[i];
-    end
-  endgenerate
-endmodule
 
+
+endmodule
+  
+  
 
 `timescale 1ns / 1ps
 module KoggeStone16bitTB();
