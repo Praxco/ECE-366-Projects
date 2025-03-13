@@ -5,131 +5,129 @@ module precomputation(A, B, P, G);
   assign G = A & B;
 endmodule
 
-module blackCell( Gik, Gkj, Pik, Pkj, Pout, Gout);
-  input Gik, Gkj, Pik, Pkj;
+module blackCell(Gprev, Gcurr, Pprev, Pcurr, Pout, Gout);
+  input Gcurr, Gprev, Pcurr, Pprev;
   output Pout, Gout;
   
-  assign Pout = Pik ^ Pkj;
-  assign Gout = Gik | (Pik & Gkj);
+  assign Pout = Pcurr ^ Pprev;
+  assign Gout = Gcurr | (Pcurr & Gprev);
 endmodule
 
-module grayCell(Gik, Gkj, Pik, Gout);
-  input Gik, Pik, Gkj;
+module grayCell(Gprev, Gcurr, Pcurr, Gout);
+  input Gcurr, Pcurr, Gprev;
   output Gout;
   
-  assign Gout = Gik | (Pik & Gkj);
+  assign Gout = Gcurr | (Pcurr & Gprev);
 endmodule
 
-module postcomputation(Gi0, P, S);
-  input Gi0, P;
+module postcomputation(GC, P, S);
+  input GC, P;
   output S;
   
-  assign S = Gi0 ^ P;
+  assign S = GC ^ P;
 endmodule
 
-module KoggeStone16bit(A, B, Cin, S, Cout);
+module KoggeStone16bit (A, B, Cin, S, Cout);
   input [15:0] A, B;
   input Cin;
   output [15:0] S;
   output Cout;
-  
-  wire [15:0] G, Gij1, Gij2, Gij3, P, Pij1, Pij2, Pij3, GC;
-  // G and P are precompute values
-  // Gik and Pik are the current block P and Gs
-  // Gkj and Pkj are the previous/connected/carried P and G from last block
-  // Gij(x) and Pij(x) are the outputs of level x, to be sent to next level
-  // GC is the generated carry for the corresponding block/bit (indicated by instance name)
+  wire [15:0] P, G, GA, GB, GC, PA, PB, PC, GZ;
+  // GA and PA are carries of level 1
+  // GB and PB are carries of level 2
+  // GC and PC are carries of level 3
+  // GZ is generated carry out / carry for postcomputation (final G from i to j for bit i:j in postcomp)
+  // precomputation
+  assign P[0] = 0;
+  assign G[0] = Cin;
   genvar i;
   generate
-    for (i = 0; i < 16; i = i + 1) begin : precomp
+    for (i = 1; i < 16; i = i + 1) begin : precomp
       precomputation pc(.A(A[i]), .B(B[i]), .P(P[i]), .G(G[i]));
     end
   endgenerate
-  
   // Level 1
-  grayCell G1_0(.Gik(G[0]), .Gkj(Cin), .Pik(P[0]), .Gout(GC[0]));
-  blackCell PG2_1(.Gik(G[2]), .Gkj(G[1]), .Pik(P[2]), .Pkj(P[1]), .Pout(Pij1[1]), .Gout(Gij1[1]));
-  blackCell PG3_2(.Gik(G[3]), .Gkj(G[2]), .Pik(P[3]), .Pkj(P[2]), .Pout(Pij1[2]), .Gout(Gij1[2]));
-  blackCell PG4_3(.Gik(G[4]), .Gkj(G[3]), .Pik(P[4]), .Pkj(P[3]), .Pout(Pij1[3]), .Gout(Gij1[3]));
-  blackCell PG5_4(.Gik(G[5]), .Gkj(G[4]), .Pik(P[5]), .Pkj(P[4]), .Pout(Pij1[4]), .Gout(Gij1[4]));
-  blackCell PG6_5(.Gik(G[6]), .Gkj(G[5]), .Pik(P[6]), .Pkj(P[5]), .Pout(Pij1[5]), .Gout(Gij1[5]));
-  blackCell PG7_6(.Gik(G[7]), .Gkj(G[6]), .Pik(P[7]), .Pkj(P[6]), .Pout(Pij1[6]), .Gout(Gij1[6]));
-  blackCell PG8_7(.Gik(G[8]), .Gkj(G[7]), .Pik(P[8]), .Pkj(P[7]), .Pout(Pij1[7]), .Gout(Gij1[7]));
-  blackCell PG9_8(.Gik(G[9]), .Gkj(G[8]), .Pik(P[9]), .Pkj(P[8]), .Pout(Pij1[8]), .Gout(Gij1[8]));
-  blackCell PG10_9(.Gik(G[10]), .Gkj(G[9]), .Pik(P[10]), .Pkj(P[9]), .Pout(Pij1[9]), .Gout(Gij1[9]));
-  blackCell PG11_10(.Gik(G[11]), .Gkj(G[10]), .Pik(P[11]), .Pkj(P[10]), .Pout(Pij1[10]), .Gout(Gij1[10]));
-  blackCell PG12_11(.Gik(G[12]), .Gkj(G[11]), .Pik(P[12]), .Pkj(P[11]), .Pout(Pij1[11]), .Gout(Gij1[11]));
-  blackCell PG13_12(.Gik(G[13]), .Gkj(G[12]), .Pik(P[13]), .Pkj(P[12]), .Pout(Pij1[12]), .Gout(Gij1[12]));
-  blackCell PG14_13(.Gik(G[14]), .Gkj(G[13]), .Pik(P[14]), .Pkj(P[13]), .Pout(Pij1[13]), .Gout(Gij1[13]));
-  blackCell PG15_14(.Gik(G[15]), .Gkj(G[14]), .Pik(P[15]), .Pkj(P[14]), .Pout(Pij1[14]), .Gout(Gij1[14]));
   
+  grayCell G1_0(G[0], G[1], P[1], GZ[1]);
+  blackCell PG2_1(G[1], G[2], P[1], P[2], PA[0], GA[0]);
+  blackCell PG3_2(G[2], G[3], P[2], P[3], PA[1], GA[1]);
+  blackCell PG4_3(G[3], G[4], P[3], P[4], PA[2], GA[2]);
+  blackCell PG5_4(G[4], G[5], P[4], P[5], PA[3], GA[3]);
+  blackCell PG6_5(G[5], G[6], P[5], P[6], PA[4], GA[4]);
+  blackCell PG7_6(G[6], G[7], P[6], P[7], PA[5], GA[5]);
+  blackCell PG8_7(G[7], G[8], P[7], P[8], PA[6], GA[6]);
+  blackCell PG9_8(G[8], G[9], P[8], P[9], PA[7], GA[7]);
+  blackCell PG10_9(G[9], G[10], P[9], P[10], PA[8], GA[8]);
+  blackCell PG11_10(G[10], G[11], P[10], P[11], PA[9], GA[9]);
+  blackCell PG12_11(G[11], G[12], P[11], P[12], PA[10], GA[10]);
+  blackCell PG13_12(G[12], G[13], P[12], P[13], PA[11], GA[11]);
+  blackCell PG14_13(G[13], G[14], P[13], P[14], PA[12], GA[12]);
+  blackCell PG15_14(G[14], G[15], P[14], P[15], PA[13], GA[13]);
   
   // Level 2
-  grayCell G2_0(.Gik(Gij1[1]), .Gkj(Cin), .Pik(Pij1[1]), .Gout(GC[1]));
-  grayCell G3_0(.Gik(Gij1[2]), .Gkj(GC[0]), .Pik(Pij1[2]), .Gout(GC[2]));
-  blackCell PG4_1(.Gik(Gij1[3]), .Gkj(Gij1[1]), .Pik(Pij1[3]), .Pkj(Pij1[1]), .Pout(Pij2[3]), .Gout(Gij2[3]));
-  blackCell PG5_2(.Gik(Gij1[4]), .Gkj(Gij1[2]), .Pik(Pij1[4]), .Pkj(Pij1[2]), .Pout(Pij2[4]), .Gout(Gij2[4]));
-  blackCell PG6_3(.Gik(Gij1[5]), .Gkj(Gij1[3]), .Pik(Pij1[5]), .Pkj(Pij1[3]), .Pout(Pij2[5]), .Gout(Gij2[5]));
-  blackCell PG7_4(.Gik(Gij1[6]), .Gkj(Gij1[4]), .Pik(Pij1[6]), .Pkj(Pij1[4]), .Pout(Pij2[6]), .Gout(Gij2[6])); 
-  blackCell PG8_5(.Gik(Gij1[7]), .Gkj(Gij1[5]), .Pik(Pij1[7]), .Pkj(Pij1[5]), .Pout(Pij2[7]), .Gout(Gij2[7]));
-  blackCell PG9_6(.Gik(Gij1[8]), .Gkj(Gij1[6]), .Pik(Pij1[8]), .Pkj(Pij1[6]), .Pout(Pij2[8]), .Gout(Gij2[8]));
-  blackCell PG10_7(.Gik(Gij1[9]), .Gkj(Gij1[7]), .Pik(Pij1[9]), .Pkj(Pij1[7]), .Pout(Pij2[9]), .Gout(Gij2[9]));
-  blackCell PG11_8(.Gik(Gij1[10]), .Gkj(Gij1[8]), .Pik(Pij1[10]), .Pkj(Pij1[8]), .Pout(Pij2[10]), .Gout(Gij2[10]));
-  blackCell PG12_9(.Gik(Gij1[11]), .Gkj(Gij1[9]), .Pik(Pij1[11]), .Pkj(Pij1[9]), .Pout(Pij2[11]), .Gout(Gij2[11]));
-  blackCell PG13_10(.Gik(Gij1[12]), .Gkj(Gij1[10]), .Pik(Pij1[12]), .Pkj(Pij1[10]), .Pout(Pij2[12]), .Gout(Gij2[12]));
-  blackCell PG14_11(.Gik(Gij1[13]), .Gkj(Gij1[11]), .Pik(Pij1[13]), .Pkj(Pij1[11]), .Pout(Pij2[13]), .Gout(Gij2[13]));
-  blackCell PG15_12(.Gik(Gij1[14]), .Gkj(Gij1[12]), .Pik(Pij1[14]), .Pkj(Pij1[12]), .Pout(Pij2[14]), .Gout(Gij2[14]));
-
+  
+  grayCell G2_0(G[0], GA[0], PA[0], GZ[2]);
+  grayCell G3_0(GZ[1], GA[1], PA[1], GZ[3]);
+  blackCell PG4_1(GA[0], GA[2], PA[0], PA[2], PB[0], GB[0]);
+  blackCell PG5_2(GA[1], GA[3], PA[1], PA[3], PB[1], GB[1]);
+  blackCell PG6_3(GA[2], GA[4], PA[2], PA[4], PB[2], GB[2]);
+  blackCell PG7_4(GA[3], GA[5], PA[3], PA[5], PB[3], GB[3]);
+  blackCell PG8_5(GA[4], GA[6], PA[4], PA[6], PB[4], GB[4]);
+  blackCell PG9_6(GA[5], GA[7], PA[5], PA[7], PB[5], GB[5]);
+  blackCell PG10_7(GA[6], GA[8], PA[6], PA[8], PB[6], GB[6]);
+  blackCell PG11_8(GA[7], GA[9], PA[7], PA[9], PB[7], GB[7]);
+  blackCell PG12_9(GA[8], GA[10], PA[8], PA[10], PB[8], GB[8]);
+  blackCell PG13_10(GA[9], GA[11], PA[9], PA[11], PB[9], GB[9]);
+  blackCell PG14_11(GA[10], GA[12], PA[10], PA[12], PB[10], GB[10]);
+  blackCell PG15_12(GA[11], GA[13], PA[11], PA[13], PB[11], GB[11]);
   
   // Level 3
   
-  grayCell G4_0(.Gik(Gij2[3]), .Gkj(Cin), .Pik(Pij2[3]), .Gout(GC[3]));
-  grayCell G5_0(.Gik(Gij2[4]), .Gkj(GC[0]), .Pik(Pij2[4]), .Gout(GC[4]));
-  grayCell G6_0(.Gik(Gij2[5]), .Gkj(GC[1]), .Pik(Pij2[5]), .Gout(GC[5]));
-  grayCell G7_0(.Gik(Gij2[6]), .Gkj(GC[2]), .Pik(Pij2[6]), .Gout(GC[6]));
-  blackCell PG8_1(.Gik(Gij2[7]), .Gkj(Gij2[3]), .Pik(Pij2[7]), .Pkj(Pij2[3]), .Pout(Pij3[7]), .Gout(Gij3[7]));
-  blackCell PG9_2(.Gik(Gij2[8]), .Gkj(Gij2[4]), .Pik(Pij2[8]), .Pkj(Pij2[4]), .Pout(Pij3[8]), .Gout(Gij3[8]));
-  blackCell PG10_3(.Gik(Gij2[9]), .Gkj(Gij2[5]), .Pik(Pij2[9]), .Pkj(Pij2[5]), .Pout(Pij3[9]), .Gout(Gij3[9]));
-  blackCell PG11_4(.Gik(Gij2[10]), .Gkj(Gij2[6]), .Pik(Pij2[10]), .Pkj(Pij2[6]), .Pout(Pij3[10]), .Gout(Gij3[10]));
-  blackCell PG12_5(.Gik(Gij2[11]), .Gkj(Gij2[7]), .Pik(Pij2[11]), .Pkj(Pij2[7]), .Pout(Pij3[11]), .Gout(Gij3[11]));
-  blackCell PG13_6(.Gik(Gij2[12]), .Gkj(Gij2[8]), .Pik(Pij2[12]), .Pkj(Pij2[8]), .Pout(Pij3[12]), .Gout(Gij3[12]));
-  blackCell PG14_7(.Gik(Gij2[13]), .Gkj(Gij2[9]), .Pik(Pij2[13]), .Pkj(Pij2[9]), .Pout(Pij3[13]), .Gout(Gij3[13]));
-  blackCell PG15_8(.Gik(Gij2[14]), .Gkj(Gij2[10]), .Pik(Pij2[14]), .Pkj(Pij2[10]), .Pout(Pij3[14]), .Gout(Gij3[14]));
+  grayCell G4_0(G[0], GB[0], PB[1], GZ[4]);
+  grayCell G5_0(GZ[1], GB[1], PB[1], GZ[5]);
+  grayCell G6_0(GZ[2], GB[2], PB[2], GZ[6]);
+  grayCell G7_0(GZ[3], GB[3], PB[3], GZ[7]);
+  blackCell PG8_1(GB[0], GB[4], PB[0], PB[4], PC[0], GC[0]);
+  blackCell PG9_2(GB[1], GB[5], PB[1], PB[5], PC[1], GC[1]);
+  blackCell PG10_3(GB[2], GB[6], PB[2], PB[6], PC[2], GC[2]);
+  blackCell PG11_4(GB[3], GB[7], PB[3], PB[7], PC[3], GC[3]);
+  blackCell PG12_5(GB[4], GB[8], PB[4], PB[8], PC[4], GC[4]);
+  blackCell PG13_6(GB[5], GB[9], PB[5], PB[9], PC[5], GC[5]);
+  blackCell PG14_7(GB[6], GB[10], PB[6], PB[10], PC[6], GC[6]);
+  blackCell PG15_8(GB[7], GB[11], PB[7], PB[11], PC[7], GC[7]);
   
   // Level 4
+  grayCell G8_0(G[0], GC[0], PC[0], GZ[8]);
+  grayCell G9_0(GZ[1], GC[1], PC[1], GZ[9]);
+  grayCell G10_0(GZ[2], GC[2], PC[2], GZ[10]);
+  grayCell G11_0(GZ[3], GC[3], PC[3], GZ[11]);
+  grayCell G12_0(GZ[4], GC[4], PC[4], GZ[12]);
+  grayCell G13_0(GZ[5], GC[5], PC[5], GZ[13]);
+  grayCell G14_0(GZ[6], GC[6], PC[6], GZ[14]);
+  grayCell G15_0(GZ[7], GC[7], PC[7], GZ[15]);
   
-  grayCell G8_0(.Gik(Gij3[7]), .Gkj(Cin), .Pik(Pij3[7]), .Gout(GC[7]));
-  grayCell G9_0(.Gik(Gij3[8]), .Gkj(GC[0]), .Pik(Pij3[8]), .Gout(GC[8]));
-  grayCell G10_0(.Gik(Gij3[9]), .Gkj(GC[1]), .Pik(Pij3[9]), .Gout(GC[9]));
-  grayCell G11_0(.Gik(Gij3[10]), .Gkj(GC[2]), .Pik(Pij3[10]), .Gout(GC[10]));
-  grayCell G12_0(.Gik(Gij3[11]), .Gkj(GC[3]), .Pik(Pij3[11]), .Gout(GC[11]));
-  grayCell G13_0(.Gik(Gij3[12]), .Gkj(GC[4]), .Pik(Pij3[12]), .Gout(GC[12]));
-  grayCell G14_0(.Gik(Gij3[13]), .Gkj(GC[5]), .Pik(Pij3[13]), .Gout(GC[13]));
-  grayCell G15_0(.Gik(Gij3[14]), .Gkj(GC[6]), .Pik(Pij3[14]), .Gout(GC[14]));
-  
-  // Sum/Post Processing Stage
-  
-  grayCell cout(.Gik(Gij3[14]), .Gkj(Cin), .Pik(Pij3[14]), .Gout(Cout));
-  
-  postcomputation S0(.Gi0(Cin), .P(P[0]), .S(S[0]));
-  postcomputation S1(.Gi0(GC[0]), .P(P[1]), .S(S[1]));
-  postcomputation S2(.Gi0(GC[1]), .P(P[2]), .S(S[2]));
-  postcomputation S3(.Gi0(GC[2]), .P(P[3]), .S(S[3]));
-  postcomputation S4(.Gi0(GC[3]), .P(P[4]), .S(S[4]));
-  postcomputation S5(.Gi0(GC[4]), .P(P[5]), .S(S[5]));
-  postcomputation S6(.Gi0(GC[5]), .P(P[6]), .S(S[6]));
-  postcomputation S7(.Gi0(GC[6]), .P(P[7]), .S(S[7]));
-  postcomputation S8(.Gi0(GC[7]), .P(P[8]), .S(S[8]));
-  postcomputation S9(.Gi0(GC[8]), .P(P[9]), .S(S[9]));
-  postcomputation S10(.Gi0(GC[9]), .P(P[10]), .S(S[10]));
-  postcomputation S11(.Gi0(GC[10]), .P(P[11]), .S(S[11]));
-  postcomputation S12(.Gi0(GC[11]), .P(P[12]), .S(S[12]));
-  postcomputation S13(.Gi0(GC[12]), .P(P[13]), .S(S[13]));
-  postcomputation S14(.Gi0(GC[13]), .P(P[14]), .S(S[14]));
-  postcomputation S15(.Gi0(GC[14]), .P(P[15]), .S(S[15]));
-  
+
+  // Postcomputation
+  assign Cout = G[15];
+  postcomputation S0(G[0], P[0], S[0]);
+  postcomputation S1(GZ[1], P[1], S[1]);
+  postcomputation S2(GZ[2], P[2], S[2]);
+  postcomputation S3(GZ[3], P[3], S[3]);
+  postcomputation S4(GZ[4], P[4], S[4]);
+  postcomputation S5(GZ[5], P[5], S[5]);
+  postcomputation S6(GZ[6], P[6], S[6]);
+  postcomputation S7(GZ[7], P[7], S[7]);
+  postcomputation S8(GZ[8], P[8], S[8]);
+  postcomputation S9(GZ[9], P[9], S[9]);
+  postcomputation S10(GZ[10], P[10], S[10]);
+  postcomputation S11(GZ[11], P[11], S[11]);
+  postcomputation S12(GZ[12], P[12], S[12]);
+  postcomputation S13(GZ[13], P[13], S[13]);
+  postcomputation S14(GZ[14], P[14], S[14]);
+  postcomputation S15(GZ[15], P[15], S[15]);
   
 endmodule
+  
 
   
   
