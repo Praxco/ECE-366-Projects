@@ -6,7 +6,7 @@ module one_bit_full_adder(A, B, Cin, S, Cout);
   output S, Cout;
 
   assign S = A ^ B ^ Cin;
-  assign Cout = (A & B) | (A ^ B & Cin);
+  assign Cout = (A & Cin) | (B & Cin) | (A & B);
 endmodule
 
 
