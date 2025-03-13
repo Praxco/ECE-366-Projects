@@ -140,7 +140,7 @@ module KoggeStone16bitTB();
   wire [15:0] S;
   wire Cout;
   
-  KoggeStone_16bitAdder DUT0(A, B, Cin, S, Cout);
+  KoggeStone16bit DUT0(A, B, Cin, S, Cout);
   
   initial begin
     $display("         A           B  Cin       S Cout");
