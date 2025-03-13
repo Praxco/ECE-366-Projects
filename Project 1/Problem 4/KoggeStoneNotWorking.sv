@@ -106,9 +106,10 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   
 
   // Postcomputation
+  
   assign Cout = GZ[15];
   postcomputation S0(Cin, P[0], S[0]);
-  postcomputation S1(G[0], P[1], S[1]);
+  postcomputation S1(GZ[1], P[1], S[1]);
   postcomputation S2(GZ[1], P[2], S[2]);
   postcomputation S3(GZ[2], P[3], S[3]);
   postcomputation S4(GZ[3], P[4], S[4]);
@@ -129,6 +130,7 @@ endmodule
   
   
 
+`timescale 1ns / 1ps
 `timescale 1ns / 1ps
 module KoggeStone16bitTB();
   reg [15:0] A, B; 
@@ -153,7 +155,7 @@ module KoggeStone16bitTB();
   	#5 A = 16'd516; B = 16'd654; // 516+654=1170
     #5 A = 16'd32; B = 16'd456; Cin = 1; //1+32+456=489
     #5 A = 16'd123; B = 16'd568; // 1+123+568=692
-    #5 A = 16'd938; B = 16'd84; // 1+938+84=1023
+    #5 A = 16'd938; B = 16'd87; // 1+938+87=1026
     #5 A = 16'd354; B = 16'd6853; // 1+354+6853=7208
     #5 A = 16'd8546; B = 16'd789; // 1+8546+789=9336
     #5 A = 16'd353; B = 16'd647; // 1+353+647=1001
