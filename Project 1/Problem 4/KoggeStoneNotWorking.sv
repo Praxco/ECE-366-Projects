@@ -9,7 +9,7 @@ module blackCell(Gprev, Gcurr, Pprev, Pcurr, Pout, Gout);
   input Gcurr, Gprev, Pcurr, Pprev;
   output Pout, Gout;
   
-  assign Pout = Pcurr ^ Pprev;
+  assign Pout = Pcurr & Pprev;
   assign Gout = Gcurr | (Pcurr & Gprev);
 endmodule
 
@@ -38,17 +38,15 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   // GC and PC are carries of level 3
   // GZ is generated carry out / carry for postcomputation (final G from i to j for bit i:j in postcomp)
   // precomputation
-  assign P[0] = 0;
-  assign G[0] = Cin;
   genvar i;
   generate
-    for (i = 1; i < 16; i = i + 1) begin : precomp
+    for (i = 0; i < 16; i = i + 1) begin : precomp
       precomputation pc(.A(A[i]), .B(B[i]), .P(P[i]), .G(G[i]));
     end
   endgenerate
   // Level 1
   
-  grayCell G1_0(G[0], G[1], P[1], GZ[1]);
+  grayCell G1_0(Cin, G[1], P[1], GZ[1]);
   blackCell PG2_1(G[1], G[2], P[1], P[2], PA[0], GA[0]);
   blackCell PG3_2(G[2], G[3], P[2], P[3], PA[1], GA[1]);
   blackCell PG4_3(G[3], G[4], P[3], P[4], PA[2], GA[2]);
@@ -66,7 +64,7 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   
   // Level 2
   
-  grayCell G2_0(G[0], GA[0], PA[0], GZ[2]);
+  grayCell G2_0(Cin, GA[0], PA[0], GZ[2]);
   grayCell G3_0(GZ[1], GA[1], PA[1], GZ[3]);
   blackCell PG4_1(GA[0], GA[2], PA[0], PA[2], PB[0], GB[0]);
   blackCell PG5_2(GA[1], GA[3], PA[1], PA[3], PB[1], GB[1]);
@@ -83,7 +81,7 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   
   // Level 3
   
-  grayCell G4_0(G[0], GB[0], PB[1], GZ[4]);
+  grayCell G4_0(Cin, GB[0], PB[1], GZ[4]);
   grayCell G5_0(GZ[1], GB[1], PB[1], GZ[5]);
   grayCell G6_0(GZ[2], GB[2], PB[2], GZ[6]);
   grayCell G7_0(GZ[3], GB[3], PB[3], GZ[7]);
@@ -97,7 +95,7 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   blackCell PG15_8(GB[7], GB[11], PB[7], PB[11], PC[7], GC[7]);
   
   // Level 4
-  grayCell G8_0(G[0], GC[0], PC[0], GZ[8]);
+  grayCell G8_0(Cin, GC[0], PC[0], GZ[8]);
   grayCell G9_0(GZ[1], GC[1], PC[1], GZ[9]);
   grayCell G10_0(GZ[2], GC[2], PC[2], GZ[10]);
   grayCell G11_0(GZ[3], GC[3], PC[3], GZ[11]);
@@ -108,26 +106,25 @@ module KoggeStone16bit (A, B, Cin, S, Cout);
   
 
   // Postcomputation
-  assign Cout = G[15];
-  postcomputation S0(G[0], P[0], S[0]);
-  postcomputation S1(GZ[1], P[1], S[1]);
-  postcomputation S2(GZ[2], P[2], S[2]);
-  postcomputation S3(GZ[3], P[3], S[3]);
-  postcomputation S4(GZ[4], P[4], S[4]);
-  postcomputation S5(GZ[5], P[5], S[5]);
-  postcomputation S6(GZ[6], P[6], S[6]);
-  postcomputation S7(GZ[7], P[7], S[7]);
-  postcomputation S8(GZ[8], P[8], S[8]);
-  postcomputation S9(GZ[9], P[9], S[9]);
-  postcomputation S10(GZ[10], P[10], S[10]);
-  postcomputation S11(GZ[11], P[11], S[11]);
-  postcomputation S12(GZ[12], P[12], S[12]);
-  postcomputation S13(GZ[13], P[13], S[13]);
-  postcomputation S14(GZ[14], P[14], S[14]);
-  postcomputation S15(GZ[15], P[15], S[15]);
+  assign Cout = GZ[15];
+  postcomputation S0(Cin, P[0], S[0]);
+  postcomputation S1(G[0], P[1], S[1]);
+  postcomputation S2(GZ[1], P[2], S[2]);
+  postcomputation S3(GZ[2], P[3], S[3]);
+  postcomputation S4(GZ[3], P[4], S[4]);
+  postcomputation S5(GZ[4], P[5], S[5]);
+  postcomputation S6(GZ[5], P[6], S[6]);
+  postcomputation S7(GZ[6], P[7], S[7]);
+  postcomputation S8(GZ[7], P[8], S[8]);
+  postcomputation S9(GZ[8], P[9], S[9]);
+  postcomputation S10(GZ[9], P[10], S[10]);
+  postcomputation S11(GZ[10], P[11], S[11]);
+  postcomputation S12(GZ[11], P[12], S[12]);
+  postcomputation S13(GZ[12], P[13], S[13]);
+  postcomputation S14(GZ[13], P[14], S[14]);
+  postcomputation S15(GZ[14], P[15], S[15]);
   
 endmodule
-  
 
   
   
