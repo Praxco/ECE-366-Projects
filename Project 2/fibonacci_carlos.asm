@@ -1,7 +1,6 @@
 # Carlos Perez
 # Project 2, Problem 1
 # Fibonacci(n)
-.globl fibonacci
 
 fibonacci:			# main module for fibonacci(n)
  li $s0, 0			# variable a
