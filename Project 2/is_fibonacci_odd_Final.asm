@@ -1,6 +1,8 @@
 # Project 2 Final Code by Carlos Perez & Cole Garrett Shoemaker
 # Assemble and run program: Enter number (n) into I/O space and program will return
 # fibonacci(n), followed by 'True' if odd, and 'False' if even
+# Note that the registers in the MIPS architecture processor (32 bits) will overflow at n = 47
+# and will take much longer to compute the isOdd(n) at higher values of n (our computers took 30+ minutes to compute isOdd[fibonacci(n)] )
 
 	.data
 true_str: .asciiz "\nTrue\n"
