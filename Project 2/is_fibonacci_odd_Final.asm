@@ -1,4 +1,6 @@
 # Project 2 Final Code by Carlos Perez & Cole Garrett Shoemaker
+# Assemble and run program: Enter number (n) into I/O space and program will return
+# fibonacci(n), followed by 'True' if odd, and 'False' if even
 
 	.data
 true_str: .asciiz "\nTrue\n"
