@@ -75,8 +75,8 @@ print_fibonacci:
 
 odd_loop:
     bge $s1, $t3, subtract  # if m>=2 go to subtract
-    move $a0, $s1 			# if m<2 the remainder is just the value of m (0 or 1), and hence our result
-    jr $ra				# jump back to main using PC
+    move $a0, $s1 	# if m<2 the remainder is just the value of m (0 or 1), and hence our result
+    jr $ra		# jump back to main using PC
 
 subtract:
     sub $s1, $s1, $t3 	# m = m - 2
