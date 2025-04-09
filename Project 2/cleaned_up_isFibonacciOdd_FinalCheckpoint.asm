@@ -1,4 +1,6 @@
 # Project 2 Final Code by Carlos Perez & Cole Garrett Shoemaker
+# Date Created: April 8th, 2025
+# Last Edit: April 8th, 2025
 # Assemble and run program: Enter number (n) into I/O space and program will return
 # fibonacci(n), followed by 'True' if odd, and 'False' if even
 # Note that the registers in the MIPS architecture processor (32 bits) will overflow at n = 47
