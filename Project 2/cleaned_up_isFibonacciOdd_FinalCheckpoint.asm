@@ -19,8 +19,8 @@ notOdd_str: .asciiz "\nFalse\n"
 	
 	
 main:
-	# set up registers to use in fibonacci(n)
-	li $s0, 0			# variable a
+    # set up registers to use in fibonacci(n)
+    li $s0, 0			# variable a
     li $s1, 1			# variable b
     li $s2, 0			# temp variable
     li $t1, 0			# variable n
