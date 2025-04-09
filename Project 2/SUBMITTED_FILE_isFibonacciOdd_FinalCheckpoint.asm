@@ -85,9 +85,9 @@ subtract:
 print_true:
     la $a0, isOdd_str   # load address of "true" string from global data
     syscall		# code 4 for printing strings in $v0
-    jr $ra              # return from function
+    jr $ra              # jump back to main using PC
     
 print_false:
     la $a0, notOdd_str  # load address of "false" string from global data
     syscall		# code 4 for printing strings in $v0
-    jr $ra              # return from function
+    jr $ra              # jump back to main using PC
